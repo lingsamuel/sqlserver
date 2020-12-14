@@ -45,6 +45,7 @@ func (t *HTTPTable) Partitions(ctx *sql.Context) (sql.PartitionIter, error) {
 
 // PartitionRows implements the sql.Table interface.
 func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sql.RowIter, error) {
+	fmt.Printf("Partition: %s\n", partition)
 	// Simulate a HTTP call
 	rows := []sql.Row{
 		sql.NewRow("John Doe", "john@doe.com", []string{"555-555-555"}, time.Now()),
@@ -52,9 +53,13 @@ func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sq
 		sql.NewRow("Jane Doe", "jane@doe.com", []string{}, time.Now()),
 		sql.NewRow("Evil Bob", "evilbob@gmail.com", []string{"555-666-555", "666-666-666"}, time.Now()),
 	}
+
+	for _, f := range t.filters {
+		fmt.Printf("Process Filter in Iter: %v\n", f.String())
+	}
+
 	return &tableIter{
 		rows: rows,
-		filters: t.filters,
 	}, nil
 }
 
@@ -77,50 +82,26 @@ func (p *partitionIter) Next() (sql.Partition, error) {
 
 func (p *partitionIter) Close() error { return nil }
 
+// We process nothing here because we always return full rows
 type tableIter struct {
-	filters []sql.Expression
-
 	rows []sql.Row
 	pos  int
 }
 
 var _ sql.RowIter = (*tableIter)(nil)
 
-// We could process filter here
-// Or in HTTP calls
-func (i *tableIter) Next() (sql.Row, error) {
-	row, err := i.getRow()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, f := range i.filters {
-		fmt.Printf("Process Filter in Iter: %v\n", f.String())
-		result, err := f.Eval(sql.NewEmptyContext(), row)
-		if err != nil {
-			return nil, err
-		}
-		result, _ = sql.ConvertToBool(result)
-		if result != true {
-			return i.Next()
-		}
-	}
-
-	return row, nil
-}
-
-func (i *tableIter) Close() error {
-	return nil
-}
-
-func (i *tableIter) getRow() (sql.Row, error) {
-	if i.pos >= len(i.rows) {
+func (iter *tableIter) Next() (sql.Row, error) {
+	if iter.pos >= len(iter.rows) {
 		return nil, io.EOF
 	}
 
-	row := i.rows[i.pos]
-	i.pos++
+	row := iter.rows[iter.pos]
+	iter.pos++
 	return row, nil
+}
+
+func (iter *tableIter) Close() error {
+	return nil
 }
 
 // String implements the sql.Table interface.

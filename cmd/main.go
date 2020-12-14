@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	sqle "github.com/dolthub/go-mysql-server"
 	"github.com/dolthub/go-mysql-server/auth"
 	"github.com/dolthub/go-mysql-server/server"
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/lingsamuel/sqlserver/pkg/engine"
 	"github.com/lingsamuel/sqlserver/pkg/http_db"
 )
 
 func main() {
-	driver := sqle.NewDefault()
-	driver.AddDatabase(httpDatabase())
+	e := engine.NewEngine()
+	e.AddDatabase(httpDatabase())
 
 	config := server.Config{
 		Protocol: "tcp",
@@ -19,7 +19,7 @@ func main() {
 		Auth:     auth.NewNativeSingle("user", "pass", auth.AllPermissions),
 	}
 
-	s, err := server.NewDefaultServer(config, driver)
+	s, err := server.NewDefaultServer(config, e)
 	if err != nil {
 		panic(err)
 	}

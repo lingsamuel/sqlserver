@@ -16,8 +16,9 @@ func (t *HTTPTable) Filters() []sql.Expression {
 // HandledFilters implements the sql.FilteredTable interface.
 func (t *HTTPTable) HandledFilters(filters []sql.Expression) []sql.Expression {
 	var handled []sql.Expression
+	fmt.Printf("Handle Filters (%v)\n", len(filters))
 	for _, f := range filters {
-		fmt.Printf("Handle Filter: %v\n", f.String())
+		fmt.Printf("Handle Filter: %v (Children: %v)\n", f.String(), f.Children())
 		var hasOtherFields bool
 		sql.Inspect(f, func(e sql.Expression) bool {
 			if e, ok := e.(*expression.GetField); ok {
@@ -34,7 +35,7 @@ func (t *HTTPTable) HandledFilters(filters []sql.Expression) []sql.Expression {
 		}
 	}
 
-	return handled
+	return filters
 }
 
 // WithFilters implements the sql.FilteredTable interface.
