@@ -58,6 +58,11 @@ func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sq
 		fmt.Printf("Process Filter in Iter: %v\n", f.String())
 	}
 
+	//rows, err := proxy.Fetch(t.name, t.filters, t.schema)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	return &tableIter{
 		rows: rows,
 	}, nil

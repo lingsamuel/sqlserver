@@ -1,6 +1,7 @@
 package http_db
 
 import (
+	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
 )
 
@@ -59,6 +60,7 @@ func (d *Database) CreateTable(ctx *sql.Context, name string, schema sql.Schema)
 		return sql.ErrTableAlreadyExists.New(name)
 	}
 
+	fmt.Printf("Create table %s\n", name)
 	table := NewTable(name, schema)
 	d.tables[name] = table
 	return nil
