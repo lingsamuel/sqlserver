@@ -1,8 +1,11 @@
 package http_db
 
 import (
+	"net/url"
+
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/src-d/go-errors.v1"
 )
 
 // Database is a simple database.
@@ -60,8 +63,25 @@ func (d *Database) CreateTable(ctx *sql.Context, name string, schema sql.Schema)
 		return sql.ErrTableAlreadyExists.New(name)
 	}
 
-	logrus.Infof("Create table %s", name)
-	table := NewTable(name, schema)
+	logrus.Infof("Create table %s, query: %v", name, ctx.Query())
+	t, v := ctx.Get("source")
+	if v == nil {
+		return errors.NewKind("invalid nil source").New()
+	} else if t != sql.LongText {
+		return errors.NewKind("invalid source type %v").New(t)
+	}
+	source, ok := v.(string)
+	if !ok {
+		return errors.NewKind("source conversion error: got %T but want string").New(v)
+	}
+
+	_, err := url.Parse(source)
+	if err != nil {
+		return err
+	}
+
+	logrus.Infof("Source: %v", source)
+	table := NewHTTPTable(name, schema, source)
 	d.tables[name] = table
 	return nil
 }

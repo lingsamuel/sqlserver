@@ -11,6 +11,7 @@ import (
 
 // HTTPTable represents an http database table.
 type HTTPTable struct {
+	source string
 	// Schema and related info
 	name   string
 	schema sql.Schema
@@ -20,9 +21,10 @@ type HTTPTable struct {
 
 var _ sql.Table = (*HTTPTable)(nil)
 
-// NewTable creates a new HTTPTable with the given name and schema.
-func NewTable(name string, schema sql.Schema) *HTTPTable {
+// NewHTTPTable creates a new HTTPTable with the given name and schema.
+func NewHTTPTable(name string, schema sql.Schema, source string) *HTTPTable {
 	return &HTTPTable{
+		source: source,
 		name:   name,
 		schema: schema,
 	}

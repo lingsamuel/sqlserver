@@ -72,7 +72,7 @@ func run() {
 
 func httpDatabase() *http_db.Database {
 	db := http_db.NewDatabase(db)
-	//table := http_db.NewTable(tableName, sql.Schema{
+	//table := http_db.NewHTTPTable(tableName, sql.Schema{
 	//	{Name: "name", Type: sql.Text, Nullable: false, Source: tableName},
 	//	{Name: "email", Type: sql.Text, Nullable: false, Source: tableName},
 	//	{Name: "phone_numbers", Type: sql.JSON, Nullable: false, Source: tableName},
