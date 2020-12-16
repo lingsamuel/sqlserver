@@ -1,8 +1,8 @@
 package http_db
 
 import (
-	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/sirupsen/logrus"
 )
 
 var _ sql.InsertableTable = (*HTTPTable)(nil)
@@ -14,7 +14,7 @@ func (t *HTTPTable) Inserter(*sql.Context) sql.RowInserter {
 
 // Insert a new row into the table.
 func (t *tableEditor) Insert(ctx *sql.Context, row sql.Row) error {
-	fmt.Printf("Inserting row %s\n", row)
+	logrus.Infof("Inserting row %s", row)
 	return nil
 }
 

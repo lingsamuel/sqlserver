@@ -1,15 +1,15 @@
 package http_db
 
 import (
-	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/sirupsen/logrus"
 )
 
 // Database is a simple database.
 type Database struct {
-	name              string
-	tables            map[string]sql.Table
-	triggers          []sql.TriggerDefinition
+	name     string
+	tables   map[string]sql.Table
+	triggers []sql.TriggerDefinition
 }
 
 var _ sql.Database = (*Database)(nil)
@@ -60,7 +60,7 @@ func (d *Database) CreateTable(ctx *sql.Context, name string, schema sql.Schema)
 		return sql.ErrTableAlreadyExists.New(name)
 	}
 
-	fmt.Printf("Create table %s\n", name)
+	logrus.Infof("Create table %s", name)
 	table := NewTable(name, schema)
 	d.tables[name] = table
 	return nil

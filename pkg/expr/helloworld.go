@@ -3,6 +3,7 @@ package expr
 import (
 	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/sirupsen/logrus"
 )
 
 // HelloWorld takes a string and output "hello xxx"
@@ -76,7 +77,7 @@ func (t *HelloWorld) Type() sql.Type {
 
 // Eval implements sql.Expression
 func (t *HelloWorld) Eval(ctx *sql.Context, row sql.Row) (interface{}, error) {
-	fmt.Printf("EvalRow: %s, Self: %s\n", row, t)
+	logrus.Infof("EvalRow: %s, Self: %s", row, t)
 	if t == nil || t.Child == nil {
 		return "Hello, world!", nil
 	}
