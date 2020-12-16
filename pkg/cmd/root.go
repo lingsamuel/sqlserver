@@ -16,8 +16,8 @@ var (
 	address  string
 	port     int
 
-	user        string
-	password    string
+	user     string
+	password string
 
 	rootCmd = &cobra.Command{
 		Use:   "sqlproxy",
@@ -72,14 +72,6 @@ func run() {
 
 func httpDatabase() *http_db.Database {
 	db := http_db.NewDatabase(db)
-	//table := http_db.NewHTTPTable(tableName, sql.Schema{
-	//	{Name: "name", Type: sql.Text, Nullable: false, Source: tableName},
-	//	{Name: "email", Type: sql.Text, Nullable: false, Source: tableName},
-	//	{Name: "phone_numbers", Type: sql.JSON, Nullable: false, Source: tableName},
-	//	{Name: "created_at", Type: sql.Timestamp, Nullable: false, Source: tableName},
-	//})
-	//
-	//db.AddTable(tableName, table)
 
 	return db
 }
