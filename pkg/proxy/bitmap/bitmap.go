@@ -1,7 +1,6 @@
 package bitmap
 
 import (
-	"encoding/json"
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/dolthub/go-mysql-server/sql/expression"
 	"github.com/sirupsen/logrus"
@@ -220,8 +219,5 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 		}
 	}
 
-	j, err := json.Marshal(root)
-	logError(err)
-	logrus.Infof("Params: %v\n", string(j))
 	return root, nil
 }

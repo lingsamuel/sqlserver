@@ -1,7 +1,7 @@
 package http_db
 
 import (
-	"github.com/lingsamuel/sqlserver/pkg/proxy/bitmap"
+	"github.com/lingsamuel/sqlserver/pkg/proxy"
 	"io"
 	"strconv"
 	"time"
@@ -60,12 +60,10 @@ func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sq
 	for _, f := range t.filters {
 		logrus.Infof("Process Filter in Iter: %v", f.String())
 	}
-	bitmap.BuildBitmapParams(ctx.Query(), t.filters)
-
-	//rows, err := proxy.Fetch(t.name, t.filters, t.schema)
-	//if err != nil {
-	//	return nil, err
-	//}
+	rows, err := proxy.Fetch(ctx, t.source, t.name, t.filters, t.schema)
+	if err != nil {
+		return nil, err
+	}
 
 	return &tableIter{
 		rows: rows,
