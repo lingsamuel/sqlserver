@@ -188,18 +188,14 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 	var rootExpr Expr
 	var err error
 
-	if len(filters) == 1 {
-		rootExpr = Expr{
-			Data: []string{},
-			Expr: []Expr{},
-		}
-	} else {
-		rootExpr, err = parseExpression(Expr{
-			Op:   And,
-			Data: []string{},
-			Expr: []Expr{},
-		}, fields, filters[0])
-		logError(err)
+	rootExpr, err = parseExpression(Expr{
+		Data: []string{},
+		Expr: []Expr{},
+	}, fields, filters[0])
+	logError(err)
+
+	if len(filters) > 1 {
+		rootExpr.Op = And
 	}
 
 	for _, f := range filters[1:] {
