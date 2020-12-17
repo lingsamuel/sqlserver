@@ -36,7 +36,7 @@ type ReturnData struct {
 }
 
 type ReturnType struct {
-	Errno string     `json:"errno"`
+	Errno int        `json:"errno"`
 	Data  ReturnData `json:"data"`
 }
 

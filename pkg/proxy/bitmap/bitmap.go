@@ -185,12 +185,22 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 		return Params{}, errors.NewKind("Empty where clause").New()
 	}
 	fields := make(SqlList)
-	rootExpr, err := parseExpression(Expr{
-		Op:   And,
-		Data: []string{},
-		Expr: []Expr{},
-	}, fields, filters[0])
-	logError(err)
+	var rootExpr Expr
+	var err error
+
+	if len(filters) == 1 {
+		rootExpr = Expr{
+			Data: []string{},
+			Expr: []Expr{},
+		}
+	} else {
+		rootExpr, err = parseExpression(Expr{
+			Op:   And,
+			Data: []string{},
+			Expr: []Expr{},
+		}, fields, filters[0])
+		logError(err)
+	}
 
 	for _, f := range filters[1:] {
 		logrus.Tracef("Iterating %v\n", f)
