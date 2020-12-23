@@ -1,12 +1,11 @@
 package http_db
 
 import (
-	"github.com/lingsamuel/sqlserver/pkg/proxy"
 	"io"
 	"strconv"
-	"time"
 
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/lingsamuel/sqlserver/pkg/proxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,13 +48,6 @@ func (t *HTTPTable) Partitions(ctx *sql.Context) (sql.PartitionIter, error) {
 // PartitionRows implements the sql.Table interface.
 func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sql.RowIter, error) {
 	logrus.Infof("Partition: %s, query: %v", partition, ctx.Query())
-	// Simulate a HTTP call
-	rows := []sql.Row{
-		sql.NewRow("John Doe", "john@doe.com", []string{"555-555-555"}, time.Now()),
-		sql.NewRow("John Doe", "johnalt@doe.com", []string{}, time.Now()),
-		sql.NewRow("Jane Doe", "jane@doe.com", []string{}, time.Now()),
-		sql.NewRow("Evil Bob", "evilbob@gmail.com", []string{"555-666-555", "666-666-666"}, time.Now()),
-	}
 
 	for _, f := range t.filters {
 		logrus.Infof("Process Filter in Iter: %v", f.String())

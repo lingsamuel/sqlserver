@@ -3,11 +3,14 @@ package cmd
 import (
 	"fmt"
 	"github.com/dolthub/go-mysql-server/auth"
+	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
+	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/lingsamuel/sqlserver/pkg/engine"
 	"github.com/lingsamuel/sqlserver/pkg/http_db"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 var (
@@ -49,6 +52,7 @@ func run() {
 
 	e := engine.NewEngine()
 	e.AddDatabase(httpDatabase())
+	e.AddDatabase(createMemoryDatabase())
 
 	config := server.Config{
 		Protocol: "tcp",
@@ -65,6 +69,7 @@ func run() {
 	if err != nil {
 		panic(err)
 	}
+	s.Listener.ServerVersion = "1.0.0-Bitmap"
 
 	logrus.Infof("Started at %s", config.Address)
 	s.Start()
@@ -72,6 +77,37 @@ func run() {
 
 func httpDatabase() *http_db.Database {
 	db := http_db.NewDatabase(db)
+
+	return db
+}
+
+func createMemoryDatabase() *memory.Database {
+	const (
+		dbName    = "mem"
+		tableName = "test"
+	)
+
+	db := memory.NewDatabase(dbName)
+	table := memory.NewTable(tableName, sql.Schema{
+		{Name: "name", Type: sql.Text, Nullable: false, Source: tableName},
+		{Name: "email", Type: sql.Text, Nullable: false, Source: tableName},
+		{Name: "phone_numbers", Type: sql.JSON, Nullable: false, Source: tableName},
+		{Name: "created_at", Type: sql.Timestamp, Nullable: false, Source: tableName},
+	})
+
+	db.AddTable(tableName, table)
+	ctx := sql.NewEmptyContext()
+
+	rows := []sql.Row{
+		sql.NewRow("John Doe", "john@doe.com", []string{"555-555-555"}, time.Now()),
+		sql.NewRow("John Doe", "johnalt@doe.com", []string{}, time.Now()),
+		sql.NewRow("Jane Doe", "jane@doe.com", []string{}, time.Now()),
+		sql.NewRow("Evil Bob", "evilbob@gmail.com", []string{"555-666-555", "666-666-666"}, time.Now()),
+	}
+
+	for _, row := range rows {
+		table.Insert(ctx, row)
+	}
 
 	return db
 }
