@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # because we're dependent on some docker images that can change
+    - cron: '0 0 1 * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+    - name: Build & run the docker image
+      run: |
+        make output
+        
+    - uses: actions/upload-artifact@v2
+      with:
+        name: sqlproxy.img
+        path: /sqlproxy.img

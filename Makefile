@@ -9,3 +9,5 @@ docker:
 	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile -t sqlproxy .
 run: build docker
 	docker run -p 3306:3306 sqlproxy
+output: build docker
+	docker save sqlproxy -o /sqlproxy.img
