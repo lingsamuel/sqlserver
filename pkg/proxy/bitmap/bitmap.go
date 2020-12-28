@@ -19,22 +19,33 @@ const (
 
 type SqlList map[string]SqlSource
 
+// AddSource parses:
+//	- `app_zxzs.ppgj_20200610`=1
+//  - `app_zxzs.ppgj`=1
 func (s SqlList) AddSource(f *expression.GetField) error {
 	if _, ok := s[f.Name()]; ok {
 		return nil
 	}
 	args := strings.Split(f.Name(), "_")
 
-	dateBeg, err := strconv.Atoi(args[2])
-	if err != nil {
-		return err
+	if len(args) <= 1 {
+		return errors.NewKind("Parse source error: got field %v, must contains at least 2 element").New(f.Name())
 	}
-	s[f.Name()] = SqlSource{
+
+	obj := SqlSource{
 		Tag:     args[1],
 		Type:    "installed",
-		DateBeg: dateBeg,
-		DateEnd: dateBeg,
 	}
+	if len(args) >= 2 {
+		dateBeg, err := strconv.Atoi(args[2])
+		if err != nil {
+			return err
+		}
+
+		obj.DateBeg = dateBeg;
+		obj.DateEnd = dateBeg;
+	}
+	s[f.Name()] = obj
 	return nil
 }
 
