@@ -10,4 +10,4 @@ docker:
 run: build docker
 	docker run -p 3306:3306 sqlproxy
 output: build docker
-	docker save sqlproxy -o /sqlproxy.img
+	docker save sqlproxy -o ./sqlproxy.img
