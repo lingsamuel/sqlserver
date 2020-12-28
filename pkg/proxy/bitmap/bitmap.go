@@ -36,7 +36,7 @@ func (s SqlList) AddSource(f *expression.GetField) error {
 		Tag:     args[1],
 		Type:    "installed",
 	}
-	if len(args) >= 2 {
+	if len(args) > 2 {
 		dateBeg, err := strconv.Atoi(args[2])
 		if err != nil {
 			return err
