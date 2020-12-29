@@ -21,7 +21,7 @@ type SqlList map[string]SqlSource
 
 // AddSource parses:
 //	- `app_zxzs.ppgj_20200610`=1
-//  - `app_zxzs.ppgj`=1
+//	- `app_zxzs.ppgj`=1
 func (s SqlList) AddSource(f *expression.GetField) error {
 	if _, ok := s[f.Name()]; ok {
 		return nil
@@ -226,8 +226,8 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 
 	queryTerms := strings.Split(query, " ")
 	for i, term := range queryTerms {
-		if strings.ToLower(term) == "limit" {
-			limit, err := strconv.Atoi(queryTerms[i+1])
+		if strings.TrimSpace(strings.ToLower(term)) == "limit" {
+			limit, err := strconv.Atoi(strings.TrimSpace(queryTerms[i+1]))
 			if err != nil {
 				return Params{}, errors.NewKind("Parse limit clause error: %v").New(err)
 			}

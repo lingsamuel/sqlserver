@@ -1,5 +1,6 @@
 SHELL = /bin/bash
 HOST_CACHE := $(shell go env GOCACHE)
+IMAGE_TAG ?= sqlproxy
 
 build:
 	CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o output/sqlproxy ./cmd/root.go
@@ -9,3 +10,5 @@ docker:
 	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile -t $(IMAGE_TAG) .
 run: build docker
 	docker run -p 3306:3306 $(IMAGE_TAG)
+output: build docker
+	docker save $(IMAGE_TAG) -o ./sqlproxy.img
