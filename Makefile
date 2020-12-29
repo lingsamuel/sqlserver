@@ -6,6 +6,6 @@ build:
 clean:
 	rm -rf output
 docker:
-	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile -t sqlproxy .
+	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile -t $(IMAGE_TAG) .
 run: build docker
-	docker run -p 3306:3306 sqlproxy
+	docker run -p 3306:3306 $(IMAGE_TAG)

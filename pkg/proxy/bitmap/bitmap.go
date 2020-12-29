@@ -63,8 +63,8 @@ type Expr struct {
 
 type SqlSource struct {
 	Tag     string `json:"tag"`
-	DateBeg int    `json:"dateBeg"`
-	DateEnd int    `json:"dateEnd"`
+	DateBeg int    `json:"dateBeg,omitempty"`
+	DateEnd int    `json:"dateEnd,omitempty"`
 	Type    string `json:"type"`
 }
 
