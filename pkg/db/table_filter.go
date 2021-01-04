@@ -1,4 +1,4 @@
-package http_db
+package db
 
 import (
 	"github.com/dolthub/go-mysql-server/sql"
@@ -6,15 +6,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _ sql.FilteredTable = (*HTTPTable)(nil)
+var _ sql.FilteredTable = (*ProxyTable)(nil)
 
 // Filters implements the sql.FilteredTable interface.
-func (t *HTTPTable) Filters() []sql.Expression {
+func (t *ProxyTable) Filters() []sql.Expression {
 	return t.filters
 }
 
 // HandledFilters implements the sql.FilteredTable interface.
-func (t *HTTPTable) HandledFilters(filters []sql.Expression) []sql.Expression {
+func (t *ProxyTable) HandledFilters(filters []sql.Expression) []sql.Expression {
 	var handled []sql.Expression
 	logrus.Infof("Handle Filters (%v)", len(filters))
 	for _, f := range filters {
@@ -39,7 +39,7 @@ func (t *HTTPTable) HandledFilters(filters []sql.Expression) []sql.Expression {
 }
 
 // WithFilters implements the sql.FilteredTable interface.
-func (t *HTTPTable) WithFilters(filters []sql.Expression) sql.Table {
+func (t *ProxyTable) WithFilters(filters []sql.Expression) sql.Table {
 	if len(filters) == 0 {
 		return t
 	}

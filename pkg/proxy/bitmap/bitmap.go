@@ -1,10 +1,12 @@
 package bitmap
 
 import (
+	"encoding/json"
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/dolthub/go-mysql-server/sql/expression"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-errors.v1"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -33,8 +35,8 @@ func (s SqlList) AddSource(f *expression.GetField) error {
 	}
 
 	obj := SqlSource{
-		Tag:     args[1],
-		Type:    "installed",
+		Tag:  args[1],
+		Type: "installed",
 	}
 	if len(args) > 2 {
 		dateBeg, err := strconv.Atoi(args[2])
@@ -42,8 +44,8 @@ func (s SqlList) AddSource(f *expression.GetField) error {
 			return err
 		}
 
-		obj.DateBeg = dateBeg;
-		obj.DateEnd = dateBeg;
+		obj.DateBeg = dateBeg
+		obj.DateEnd = dateBeg
 	}
 	s[f.Name()] = obj
 	return nil
@@ -237,4 +239,38 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 	}
 
 	return root, nil
+}
+
+type ReturnData struct {
+	Count  int      `json:"count"`
+	IDList []string `json:"idList"`
+}
+
+type ReturnType struct {
+	Errno int        `json:"errno"`
+	Data  ReturnData `json:"data"`
+}
+
+func DecodeResult(resp *http.Response, schema sql.Schema) ([]sql.Row, error) {
+	var d ReturnType
+	if err := json.NewDecoder(resp.Body).Decode(&d); err != nil {
+		return nil, err
+	}
+	return parseRow(d, schema)
+}
+
+// We only support `select gid_index from`
+func parseRow(data ReturnType, schema sql.Schema) ([]sql.Row, error) {
+	var rows []sql.Row
+	for _, d := range data.Data.IDList {
+		//var vals []interface{}
+		//for _, col := range schema {
+		//	if v, ok := d[col.Name]; ok {
+		//		vals = append(vals, v)
+		//	}
+		//}
+		//rows = append(rows, sql.NewRow(vals...))
+		rows = append(rows, sql.NewRow(d))
+	}
+	return rows, nil
 }

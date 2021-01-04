@@ -2,15 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/dolthub/go-mysql-server/auth"
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
 	"github.com/dolthub/go-mysql-server/sql"
+	database "github.com/lingsamuel/sqlserver/pkg/db"
 	"github.com/lingsamuel/sqlserver/pkg/engine"
-	"github.com/lingsamuel/sqlserver/pkg/http_db"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 var (
@@ -51,7 +52,7 @@ func run() {
 	logrus.SetLevel(logrus.Level(logLevel))
 
 	e := engine.NewEngine()
-	e.AddDatabase(httpDatabase())
+	e.AddDatabase(bitmapDatabase())
 	e.AddDatabase(createMemoryDatabase())
 
 	config := server.Config{
@@ -75,9 +76,8 @@ func run() {
 	s.Start()
 }
 
-func httpDatabase() *http_db.Database {
-	db := http_db.NewDatabase(db)
-
+func bitmapDatabase() *database.SimpleDatabase {
+	db := database.NewBitmapDatabase(db)
 	return db
 }
 

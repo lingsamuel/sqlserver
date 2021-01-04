@@ -1,4 +1,4 @@
-package http_db
+package db
 
 import (
 	"io"
@@ -9,50 +9,43 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// HTTPTable represents an http database table.
-type HTTPTable struct {
+// ProxyTable represents an proxy database table.
+type ProxyTable struct {
 	source string
 	// Schema and related info
 	name   string
 	schema sql.Schema
 
 	filters []sql.Expression
+
+	fetcher proxy.Fetch
 }
 
-var _ sql.Table = (*HTTPTable)(nil)
-
-// NewHTTPTable creates a new HTTPTable with the given name and schema.
-func NewHTTPTable(name string, schema sql.Schema, source string) *HTTPTable {
-	return &HTTPTable{
-		source: source,
-		name:   name,
-		schema: schema,
-	}
-}
+var _ sql.Table = (*ProxyTable)(nil)
 
 // Name implements the sql.Table interface.
-func (t *HTTPTable) Name() string {
+func (t *ProxyTable) Name() string {
 	return t.name
 }
 
 // Schema implements the sql.Table interface.
-func (t *HTTPTable) Schema() sql.Schema {
+func (t *ProxyTable) Schema() sql.Schema {
 	return t.schema
 }
 
 // Partitions implements the sql.Table interface.
-func (t *HTTPTable) Partitions(ctx *sql.Context) (sql.PartitionIter, error) {
+func (t *ProxyTable) Partitions(ctx *sql.Context) (sql.PartitionIter, error) {
 	return &partitionIter{}, nil
 }
 
 // PartitionRows implements the sql.Table interface.
-func (t *HTTPTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sql.RowIter, error) {
+func (t *ProxyTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (sql.RowIter, error) {
 	logrus.Infof("Partition: %s, query: %v", partition, ctx.Query())
 
 	for _, f := range t.filters {
 		logrus.Infof("Process Filter in Iter: %v", f.String())
 	}
-	rows, err := proxy.Fetch(ctx, t.source, t.name, t.filters, t.schema)
+	rows, err := t.fetcher(ctx, t.source, t.name, t.filters, t.schema)
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +97,6 @@ func (iter *tableIter) Close() error {
 }
 
 // String implements the sql.Table interface.
-func (t *HTTPTable) String() string {
+func (t *ProxyTable) String() string {
 	return t.name
 }
