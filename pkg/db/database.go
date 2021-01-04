@@ -8,6 +8,10 @@ import (
 	"gopkg.in/src-d/go-errors.v1"
 )
 
+var (
+	Source string
+)
+
 // SimpleDatabase wraps a table creator.
 type SimpleDatabase struct {
 	names        string
@@ -55,7 +59,11 @@ func (d *SimpleDatabase) CreateTable(ctx *sql.Context, name string, schema sql.S
 	logrus.Infof("Create table %s, query: %v", name, ctx.Query())
 	t, v := ctx.Get("source")
 	if v == nil {
-		return errors.NewKind("invalid nil source").New()
+		if Source == "" {
+			return errors.NewKind("invalid nil source").New()
+		} else {
+			v = Source
+		}
 	} else if t != sql.LongText {
 		return errors.NewKind("invalid source type %v").New(t)
 	}

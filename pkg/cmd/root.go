@@ -17,8 +17,9 @@ import (
 var (
 	logLevel int
 	db       string
-	address  string
-	port     int
+
+	address string
+	port    int
 
 	user     string
 	password string
@@ -40,6 +41,7 @@ func Execute() error {
 func init() {
 	rootCmd.PersistentFlags().IntVarP(&logLevel, "loglevel", "l", int(logrus.InfoLevel), "Logrus log level. From 0 to 6: panic, fatal, error, warning, info, debug, trace.")
 	rootCmd.PersistentFlags().StringVar(&db, "db", "test", "Database name.")
+	rootCmd.PersistentFlags().StringVar(&database.Source, "source", "", "Backend endpoint.")
 
 	rootCmd.PersistentFlags().StringVarP(&address, "address", "a", "0.0.0.0", "SQL server address.")
 	rootCmd.PersistentFlags().IntVarP(&port, "port", "P", 3306, "SQL server port.")
