@@ -2,13 +2,13 @@ package redis
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"net/url"
 
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/dolthub/go-mysql-server/sql/expression"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 var (

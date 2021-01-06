@@ -12,6 +12,7 @@ redis-server --bind 0.0.0.0
 
 # init test data
 redis-cli set prefix_key value
+redis-cli set prefix_key2 value2
 
 # start mysql proxy
 make run
@@ -22,5 +23,5 @@ use redis;
 set source="tcp://172.26.0.1:6379";
 CREATE TABLE prefix(K TEXT, V TEXT);
 
-SELECT V FROM prefix WHERE K='key'; -- equals redis GET prefix_key
+SELECT V FROM prefix WHERE K='key' or K='key2'; -- equals redis GET prefix_key
 ```

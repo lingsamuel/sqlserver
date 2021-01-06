@@ -3,13 +3,13 @@ package proxy
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+
+	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/lingsamuel/sqlserver/pkg/proxy/bitmap"
 	"github.com/lingsamuel/sqlserver/pkg/proxy/redis"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"net/http"
-
-	"github.com/dolthub/go-mysql-server/sql"
 )
 
 type Fetch = func(ctx *sql.Context, source, table string, filters []sql.Expression, schema sql.Schema) ([]sql.Row, error)
