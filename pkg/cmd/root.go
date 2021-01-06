@@ -16,7 +16,8 @@ import (
 
 var (
 	logLevel int
-	db       string
+	bitmapDb string
+	redisDb  string
 
 	address string
 	port    int
@@ -40,7 +41,8 @@ func Execute() error {
 
 func init() {
 	rootCmd.PersistentFlags().IntVarP(&logLevel, "loglevel", "l", int(logrus.InfoLevel), "Logrus log level. From 0 to 6: panic, fatal, error, warning, info, debug, trace.")
-	rootCmd.PersistentFlags().StringVar(&db, "db", "test", "Database name.")
+	rootCmd.PersistentFlags().StringVar(&bitmapDb, "bitmap-db", "bitmap", "Bitmap database name.")
+	rootCmd.PersistentFlags().StringVar(&redisDb, "redis-db", "redis", "Redis database name.")
 	rootCmd.PersistentFlags().StringVar(&database.Source, "source", "", "Backend endpoint.")
 
 	rootCmd.PersistentFlags().StringVarP(&address, "address", "a", "0.0.0.0", "SQL server address.")
@@ -54,7 +56,8 @@ func run() {
 	logrus.SetLevel(logrus.Level(logLevel))
 
 	e := engine.NewEngine()
-	e.AddDatabase(bitmapDatabase())
+	e.AddDatabase(database.NewBitmapDatabase(bitmapDb))
+	e.AddDatabase(database.NewRedisDatabase(redisDb))
 	e.AddDatabase(createMemoryDatabase())
 
 	config := server.Config{
@@ -76,11 +79,6 @@ func run() {
 
 	logrus.Infof("Started at %s", config.Address)
 	s.Start()
-}
-
-func bitmapDatabase() *database.SimpleDatabase {
-	db := database.NewBitmapDatabase(db)
-	return db
 }
 
 func createMemoryDatabase() *memory.Database {

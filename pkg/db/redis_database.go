@@ -4,11 +4,11 @@ import (
 	"github.com/dolthub/go-mysql-server/sql"
 )
 
-// NewBitmapDatabase creates a new database with the given name.
-func NewBitmapDatabase(name string) *SimpleDatabase {
+// NewRedisDatabase creates a new database with the given name.
+func NewRedisDatabase(name string) *SimpleDatabase {
 	return &SimpleDatabase{
 		names:        name,
 		tables:       map[string]sql.Table{},
-		tableCreator: NewBitmapTable,
+		tableCreator: NewRedisTable,
 	}
 }
