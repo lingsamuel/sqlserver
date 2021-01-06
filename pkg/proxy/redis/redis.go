@@ -78,7 +78,7 @@ func getText(table, source string, filters []sql.Expression) (string, string, er
 		}
 		return key, v, nil
 	default:
-		return "", "", errors.New("only AND clause is supported")
+		return "", "", errors.New("only single equals clause is supported")
 	}
 }
 
