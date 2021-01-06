@@ -2,13 +2,14 @@ package bitmap
 
 import (
 	"encoding/json"
-	"github.com/dolthub/go-mysql-server/sql"
-	"github.com/dolthub/go-mysql-server/sql/expression"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/src-d/go-errors.v1"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/dolthub/go-mysql-server/sql/expression"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type Op string
@@ -31,7 +32,7 @@ func (s SqlList) AddSource(f *expression.GetField) error {
 	args := strings.Split(f.Name(), "_")
 
 	if len(args) <= 1 {
-		return errors.NewKind("Parse source error: got field %v, must contains at least 2 element").New(f.Name())
+		return errors.Errorf("Parse source error: got field %v, must contains at least 2 element",f.Name())
 	}
 
 	obj := SqlSource{
@@ -129,20 +130,20 @@ func parseEquals(root Expr, fields SqlList, equals *expression.Equals) (Expr, er
 
 	rightLiteral, ok := equals.Right().(*expression.Literal)
 	if !ok {
-		return Expr{}, errors.NewKind("Unknown equals right type %T: %v, expected: *expression.Literal").New(equals.Right(), equals.Right())
+		return Expr{}, errors.Errorf("Unknown equals right type %T: %v, expected: *expression.Literal",equals.Right(), equals.Right())
 	}
 	i, ok := rightLiteral.Value().(int8)
 	if !ok {
-		return Expr{}, errors.NewKind("Unknown equals right literal value type %T: %v, expected: int8").New(rightLiteral.Value(), rightLiteral.Value())
+		return Expr{}, errors.Errorf("Unknown equals right literal value type %T: %v, expected: int8",rightLiteral.Value(), rightLiteral.Value())
 	}
 
 	e, ok := equals.Left().(*expression.GetField)
 	if !ok {
-		return Expr{}, errors.NewKind("Unknown equals left type %T: %v, expected: *expression.GetField").New(equals.Left(), equals.Left())
+		return Expr{}, errors.Errorf("Unknown equals left type %T: %v, expected: *expression.GetField",equals.Left(), equals.Left())
 	}
 	err := fields.AddSource(e)
 	if err != nil {
-		return Expr{}, errors.NewKind("Parse source error: %v").New(err)
+		return Expr{}, errors.Errorf("Parse source error: %v",err)
 	}
 
 	if i == 1 {
@@ -168,7 +169,7 @@ func parseEquals(root Expr, fields SqlList, equals *expression.Equals) (Expr, er
 		logrus.Tracef("parsed equals root: %v\n", root)
 		return root, nil
 	} else {
-		return Expr{}, errors.NewKind("Unknown equals right literal value: %v, expected: 0 or 1").New(i)
+		return Expr{}, errors.Errorf("Unknown equals right literal value: %v, expected: 0 or 1",i)
 	}
 }
 
@@ -181,7 +182,7 @@ func parseExpression(root Expr, fields SqlList, filter sql.Expression) (Expr, er
 	case *expression.Equals:
 		return parseEquals(root, fields, t)
 	default:
-		return Expr{}, errors.NewKind("Unknown filter type %v: %v (%T)").New(t, filter, filter)
+		return Expr{}, errors.Errorf("Unknown filter type %v: %v (%T)",t, filter, filter)
 	}
 }
 
@@ -195,7 +196,7 @@ func parseExpression(root Expr, fields SqlList, filter sql.Expression) (Expr, er
 //		1. 将第一个 expression.Or 作为 Root，其余的按 Equals 规则放入 Data 或 Expr
 func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 	if len(filters) == 0 {
-		return Params{}, errors.NewKind("Empty where clause").New()
+		return Params{}, errors.Errorf("Empty where clause",)
 	}
 	fields := make(SqlList)
 	var rootExpr Expr
@@ -231,7 +232,7 @@ func BuildBitmapParams(query string, filters []sql.Expression) (Params, error) {
 		if strings.TrimSpace(strings.ToLower(term)) == "limit" {
 			limit, err := strconv.Atoi(strings.TrimSpace(queryTerms[i+1]))
 			if err != nil {
-				return Params{}, errors.NewKind("Parse limit clause error: %v").New(err)
+				return Params{}, errors.Errorf("Parse limit clause error: %v",err)
 			}
 			root.Limit = limit
 			break

@@ -4,8 +4,8 @@ import (
 	"net/url"
 
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/src-d/go-errors.v1"
 )
 
 var (
@@ -60,16 +60,16 @@ func (d *SimpleDatabase) CreateTable(ctx *sql.Context, name string, schema sql.S
 	t, v := ctx.Get("source")
 	if v == nil {
 		if Source == "" {
-			return errors.NewKind("invalid nil source").New()
+			return errors.Errorf("invalid nil source")
 		} else {
 			v = Source
 		}
 	} else if t != sql.LongText {
-		return errors.NewKind("invalid source type %v").New(t)
+		return errors.Errorf("invalid source type %v", t)
 	}
 	source, ok := v.(string)
 	if !ok {
-		return errors.NewKind("source conversion error: got %T but want string").New(v)
+		return errors.Errorf("source conversion error: got %T but want string", v)
 	}
 
 	_, err := url.Parse(source)

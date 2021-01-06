@@ -56,7 +56,7 @@ func getText(table, source string, filters []sql.Expression) (string, string, er
 		}
 		key, ok := literal.Value().(string)
 		if !ok {
-			return "", "", errors.Errorf("Unknown equals right literal value type %T: %v, expected: int8", literal.Value(), literal.Value())
+			return "", "", errors.Errorf("Unknown equals right literal value type %T: %v, expected: string", literal.Value(), literal.Value())
 		}
 
 		logrus.Infof("redis: GET %v", table+"_"+key)
