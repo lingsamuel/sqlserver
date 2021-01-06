@@ -15,6 +15,16 @@ var (
 	rds = make(map[string]*redis.Client)
 )
 
+// PingRedisClient cache the redis client and test connectivity
+func PingRedisClient(source string) error {
+	c, err := getClient(source)
+	if err != nil {
+		return err
+	}
+	_, err = c.Ping(context.Background()).Result()
+	return err
+}
+
 func getClient(source string) (*redis.Client, error) {
 	if c, ok := rds[source]; ok {
 		return c, nil
@@ -73,21 +83,14 @@ func getText(table, source string, filters []sql.Expression) (string, string, er
 }
 
 func Fetch(ctx *sql.Context, source, table string, filters []sql.Expression, schema sql.Schema) ([]sql.Row, error) {
-	if len(schema) != 2 {
-		return nil, errors.New("not a valid redis schema")
+	k, v, err := getText(table, source, filters)
+	if err == redis.Nil {
+		return []sql.Row{}, nil
+	} else if err != nil {
+		return nil, err
 	}
-	switch schema[1].Type.(type) {
-	case sql.StringType:
-		k, v, err := getText(table, source, filters)
-		if err == redis.Nil {
-			return []sql.Row{}, nil
-		} else if err != nil {
-			return nil, err
-		}
-		return []sql.Row{
-			sql.NewRow(k, v),
-		}, nil
-	default:
-		return nil, errors.New("unsupported redis type")
-	}
+
+	return []sql.Row{
+		sql.NewRow(k, v),
+	}, nil
 }

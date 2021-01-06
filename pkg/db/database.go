@@ -19,7 +19,7 @@ type SimpleDatabase struct {
 	tableCreator TableCreator
 }
 
-type TableCreator = func(name string, schema sql.Schema, source string) sql.Table
+type TableCreator = func(name string, schema sql.Schema, source string) (sql.Table, error)
 
 var _ sql.Database = (*SimpleDatabase)(nil)
 var _ sql.TableDropper = (*SimpleDatabase)(nil)
@@ -78,7 +78,10 @@ func (d *SimpleDatabase) CreateTable(ctx *sql.Context, name string, schema sql.S
 	}
 
 	logrus.Infof("Source: %v", source)
-	table := d.tableCreator(name, schema, source)
+	table, err := d.tableCreator(name, schema, source)
+	if err != nil {
+		return err
+	}
 	d.tables[name] = table
 	return nil
 }
