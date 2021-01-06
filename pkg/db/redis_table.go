@@ -5,6 +5,7 @@ import (
 	"github.com/lingsamuel/sqlserver/pkg/proxy"
 	"github.com/lingsamuel/sqlserver/pkg/proxy/redis"
 	"github.com/lingsamuel/sqlserver/pkg/util"
+	"github.com/pkg/errors"
 )
 
 var _ TableCreator = NewRedisTable
@@ -15,7 +16,7 @@ func NewRedisTable(name string, schema sql.Schema, source string) (sql.Table, er
 		return nil, err
 	}
 	if err := redis.PingRedisClient(source); err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "Ping redis %s failed", source)
 	}
 	return &ProxyTable{
 		source:  source,
