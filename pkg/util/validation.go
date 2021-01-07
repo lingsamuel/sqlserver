@@ -17,8 +17,10 @@ func ValidateRedisTableSchema(schema sql.Schema) error {
 
 	switch t := schema[1].Type.(type) {
 	case sql.StringType:
+	case sql.DecimalType:
+	case sql.NumberType:
 	default:
-		return errors.Errorf("unsupported redis value type: %T, expect String", t)
+		return errors.Errorf("unsupported redis value type: %T, expect String | Decimal | Number", t)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"net/url"
+	"strconv"
 
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/dolthub/go-mysql-server/sql/expression"
@@ -48,8 +49,16 @@ type redisColumn struct {
 	Value string
 }
 
-func (r *redisColumn) toRow() sql.Row {
-	return sql.NewRow(r.Key, r.Value)
+func toStringRow(r *redisColumn) (sql.Row, error) {
+	return sql.NewRow(r.Key, r.Value), nil
+}
+
+func toIntRow(r *redisColumn) (sql.Row, error) {
+	v, err := strconv.Atoi(r.Value)
+	if err != nil {
+		return nil, err
+	}
+	return sql.NewRow(r.Key, v), nil
 }
 
 func parseEquals(c *redis.Client, table string, expr *expression.Equals) (*redisColumn, error) {
@@ -146,9 +155,24 @@ func Fetch(ctx *sql.Context, source, table string, filters []sql.Expression, sch
 		return nil, err
 	}
 	var rows = make([]sql.Row, len(result))
-	for i, r := range result {
-		rows[i] = r.toRow()
+
+	var parser func(r *redisColumn) (sql.Row, error)
+	switch schema[1].Type.(type) {
+	case sql.StringType:
+		parser = toStringRow
+	case sql.DecimalType:
+		parser = toIntRow
+	case sql.NumberType:
+		parser = toIntRow
+	default:
+		return nil, errors.Errorf("Unknow schema type %T, how you pass validation?", schema[1].Type)
 	}
 
+	for i, r := range result {
+		rows[i], err = parser(r)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Data type conversion %#v to %T error", r.Value, schema[1].Type)
+		}
+	}
 	return rows, nil
 }
