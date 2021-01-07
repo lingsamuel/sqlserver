@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	sqle "github.com/dolthub/go-mysql-server"
 	"time"
 
 	"github.com/dolthub/go-mysql-server/auth"
@@ -9,15 +10,12 @@ import (
 	"github.com/dolthub/go-mysql-server/server"
 	"github.com/dolthub/go-mysql-server/sql"
 	database "github.com/lingsamuel/sqlserver/pkg/db"
-	"github.com/lingsamuel/sqlserver/pkg/engine"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var (
 	logLevel int
-	bitmapDb string
-	redisDb  string
 
 	address string
 	port    int
@@ -25,7 +23,7 @@ var (
 	user     string
 	password string
 
-	rootCmd = &cobra.Command{
+	RootCmd = &cobra.Command{
 		Use:   "sqlproxy",
 		Short: "Provides a http backend sql server.",
 		Long:  `Provides a http backend sql server.`,
@@ -33,32 +31,28 @@ var (
 			run()
 		},
 	}
+
+	engine *sqle.Engine
 )
 
-func Execute() error {
-	return rootCmd.Execute()
+func Execute(e *sqle.Engine) error {
+	engine = e
+	return RootCmd.Execute()
 }
 
 func init() {
-	rootCmd.PersistentFlags().IntVarP(&logLevel, "loglevel", "l", int(logrus.InfoLevel), "Logrus log level. From 0 to 6: panic, fatal, error, warning, info, debug, trace.")
-	rootCmd.PersistentFlags().StringVar(&bitmapDb, "bitmap-db", "bitmap", "Bitmap database name.")
-	rootCmd.PersistentFlags().StringVar(&redisDb, "redis-db", "redis", "Redis database name.")
-	rootCmd.PersistentFlags().StringVar(&database.Source, "source", "", "Backend endpoint.")
+	RootCmd.PersistentFlags().IntVarP(&logLevel, "loglevel", "l", int(logrus.InfoLevel), "Logrus log level. From 0 to 6: panic, fatal, error, warning, info, debug, trace.")
+	RootCmd.PersistentFlags().StringVar(&database.Source, "source", "", "Backend endpoint.")
 
-	rootCmd.PersistentFlags().StringVarP(&address, "address", "a", "0.0.0.0", "SQL server address.")
-	rootCmd.PersistentFlags().IntVarP(&port, "port", "P", 3306, "SQL server port.")
+	RootCmd.PersistentFlags().StringVarP(&address, "address", "a", "0.0.0.0", "SQL server address.")
+	RootCmd.PersistentFlags().IntVarP(&port, "port", "P", 3306, "SQL server port.")
 
-	rootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "SQL server user. If user or password empty, auth will be disabled.")
-	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "SQL server password. If user or password empty, auth will be disabled.")
+	RootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "SQL server user. If user or password empty, auth will be disabled.")
+	RootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "SQL server password. If user or password empty, auth will be disabled.")
 }
 
 func run() {
 	logrus.SetLevel(logrus.Level(logLevel))
-
-	e := engine.NewEngine()
-	e.AddDatabase(database.NewBitmapDatabase(bitmapDb))
-	e.AddDatabase(database.NewRedisDatabase(redisDb))
-	e.AddDatabase(createMemoryDatabase())
 
 	config := server.Config{
 		Protocol: "tcp",
@@ -71,17 +65,17 @@ func run() {
 		config.Auth = new(auth.None)
 	}
 
-	s, err := server.NewDefaultServer(config, e)
+	s, err := server.NewDefaultServer(config, engine)
 	if err != nil {
 		panic(err)
 	}
-	s.Listener.ServerVersion = "1.0.0-Bitmap"
+	s.Listener.ServerVersion = "DataSourceProxy"
 
 	logrus.Infof("Started at %s", config.Address)
 	s.Start()
 }
 
-func createMemoryDatabase() *memory.Database {
+func CreateMemoryDatabase() *memory.Database {
 	const (
 		dbName    = "mem"
 		tableName = "test"
