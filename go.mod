@@ -8,5 +8,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v1.1.1
-	github.com/tsuna/gohbase v0.0.0-20201125011725-348991136365 // indirect
+	github.com/tsuna/gohbase v0.0.0-20201125011725-348991136365
 )
+
+replace github.com/tsuna/gohbase v0.0.0-20201125011725-348991136365 => github.com/lingsamuel/gohbase v0.0.0-20210115072257-6122f1b5cab9

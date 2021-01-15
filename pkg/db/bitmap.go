@@ -5,6 +5,15 @@ import (
 	"github.com/lingsamuel/sqlserver/pkg/proxy"
 )
 
+// NewBitmapDatabase creates a new database with the given name.
+func NewBitmapDatabase(name string) *SimpleDatabase {
+	return &SimpleDatabase{
+		names:        name,
+		tables:       map[string]sql.Table{},
+		tableCreator: NewBitmapTable,
+	}
+}
+
 var _ TableCreator = NewBitmapTable
 
 // NewBitmapTable creates a new sql.Table with the given name and schema.

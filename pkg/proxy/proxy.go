@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/lingsamuel/sqlserver/pkg/proxy/hbase"
 	"net/http"
 
 	"github.com/dolthub/go-mysql-server/sql"
@@ -45,4 +46,8 @@ func BitmapFetch(ctx *sql.Context, source, table string, filters []sql.Expressio
 
 func RedisFetch(ctx *sql.Context, source, table string, filters []sql.Expression, schema sql.Schema) ([]sql.Row, error) {
 	return redis.Fetch(ctx, source, table, filters, schema)
+}
+
+func HBaseFetch(ctx *sql.Context, source, table string, filters []sql.Expression, schema sql.Schema) ([]sql.Row, error) {
+	return hbase.Fetch(ctx, source, table, filters, schema)
 }

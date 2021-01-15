@@ -1,8 +1,6 @@
 package db
 
 import (
-	"net/url"
-
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -72,10 +70,10 @@ func (d *SimpleDatabase) CreateTable(ctx *sql.Context, name string, schema sql.S
 		return errors.Errorf("source conversion error: got %T but want string", v)
 	}
 
-	_, err := url.Parse(source)
-	if err != nil {
-		return err
-	}
+	//_, err := url.Parse(source)
+	//if err != nil {
+	//	return err
+	//}
 
 	logrus.Infof("Source: %v", source)
 	table, err := d.tableCreator(name, schema, source)

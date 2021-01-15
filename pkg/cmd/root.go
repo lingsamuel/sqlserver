@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	sqle "github.com/dolthub/go-mysql-server"
 	"time"
 
+	sqle "github.com/dolthub/go-mysql-server"
 	"github.com/dolthub/go-mysql-server/auth"
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
@@ -32,11 +32,11 @@ var (
 		},
 	}
 
-	engine *sqle.Engine
+	engineFn func() *sqle.Engine
 )
 
-func Execute(e *sqle.Engine) error {
-	engine = e
+func Execute(f func() *sqle.Engine) error {
+	engineFn = f
 	return RootCmd.Execute()
 }
 
@@ -65,7 +65,7 @@ func run() {
 		config.Auth = new(auth.None)
 	}
 
-	s, err := server.NewDefaultServer(config, engine)
+	s, err := server.NewDefaultServer(config, engineFn())
 	if err != nil {
 		panic(err)
 	}
