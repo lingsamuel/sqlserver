@@ -8,11 +8,7 @@ import (
 
 // NewHBaseDatabase creates a new database with the given name.
 func NewHBaseDatabase(name string) *SimpleDatabase {
-	return &SimpleDatabase{
-		names:        name,
-		tables:       map[string]sql.Table{},
-		tableCreator: NewHBaseTable,
-	}
+	return NewSimpleDatabase(name, NewHBaseTable)
 }
 
 var _ TableCreator = NewHBaseTable
@@ -24,10 +20,5 @@ func NewHBaseTable(name string, schema sql.Schema, source string) (sql.Table, er
 		return nil, err
 	}
 
-	return &ProxyTable{
-		Source:      source,
-		TableName:   name,
-		TableSchema: schema,
-		Fetcher:     proxy.HBaseFetch,
-	}, nil
+	return NewProxyTable(source, name, schema, proxy.HBaseFetch), nil
 }

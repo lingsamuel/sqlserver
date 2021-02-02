@@ -10,11 +10,7 @@ import (
 
 // NewRedisDatabase creates a new database with the given name.
 func NewRedisDatabase(name string) *SimpleDatabase {
-	return &SimpleDatabase{
-		names:        name,
-		tables:       map[string]sql.Table{},
-		tableCreator: NewRedisTable,
-	}
+	return NewSimpleDatabase(name, NewRedisTable)
 }
 
 var _ TableCreator = NewRedisTable
@@ -27,10 +23,5 @@ func NewRedisTable(name string, schema sql.Schema, source string) (sql.Table, er
 	if err := redis.PingRedisClient(source); err != nil {
 		return nil, errors.Wrapf(err, "Ping redis %s failed", source)
 	}
-	return &ProxyTable{
-		Source:      source,
-		TableName:   name,
-		TableSchema: schema,
-		Fetcher:     proxy.RedisFetch,
-	}, nil
+	return NewProxyTable(source, name, schema, proxy.RedisFetch), nil
 }

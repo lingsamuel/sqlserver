@@ -12,12 +12,20 @@ var (
 
 // SimpleDatabase wraps a table creator.
 type SimpleDatabase struct {
-	names        string
+	name         string
 	tables       map[string]sql.Table
 	tableCreator TableCreator
 }
 
 type TableCreator = func(name string, schema sql.Schema, source string) (sql.Table, error)
+
+func NewSimpleDatabase(name string, c TableCreator) *SimpleDatabase {
+	return &SimpleDatabase{
+		name:         name,
+		tables:       map[string]sql.Table{},
+		tableCreator: c,
+	}
+}
 
 var _ sql.Database = (*SimpleDatabase)(nil)
 var _ sql.TableDropper = (*SimpleDatabase)(nil)
@@ -25,7 +33,7 @@ var _ sql.TableCreator = (*SimpleDatabase)(nil)
 
 // Name returns the database name.
 func (d *SimpleDatabase) Name() string {
-	return d.names
+	return d.name
 }
 
 func (d *SimpleDatabase) GetTableInsensitive(ctx *sql.Context, tblName string) (sql.Table, bool, error) {

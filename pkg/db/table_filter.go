@@ -22,7 +22,7 @@ func (t *ProxyTable) HandledFilters(filters []sql.Expression) []sql.Expression {
 		var hasOtherFields bool
 		sql.Inspect(f, func(e sql.Expression) bool {
 			if e, ok := e.(*expression.GetField); ok {
-				if e.Table() != t.TableName || !t.TableSchema.Contains(e.Name(), t.TableName) {
+				if e.Table() != t.name || !t.schema.Contains(e.Name(), t.name) {
 					hasOtherFields = true
 					return false
 				}
