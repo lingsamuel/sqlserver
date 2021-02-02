@@ -11,26 +11,25 @@ import (
 
 // ProxyTable represents an proxy database table.
 type ProxyTable struct {
-	source string
-	// Schema and related info
-	name   string
-	schema sql.Schema
+	Source      string
+	TableName   string
+	TableSchema sql.Schema
 
 	filters []sql.Expression
 
-	fetcher proxy.Fetch
+	Fetcher proxy.Fetch
 }
 
 var _ sql.Table = (*ProxyTable)(nil)
 
 // Name implements the sql.Table interface.
 func (t *ProxyTable) Name() string {
-	return t.name
+	return t.TableName
 }
 
 // Schema implements the sql.Table interface.
 func (t *ProxyTable) Schema() sql.Schema {
-	return t.schema
+	return t.TableSchema
 }
 
 // Partitions implements the sql.Table interface.
@@ -45,7 +44,7 @@ func (t *ProxyTable) PartitionRows(ctx *sql.Context, partition sql.Partition) (s
 	for _, f := range t.filters {
 		logrus.Infof("Process Filter in Iter: %v", f.String())
 	}
-	rows, err := t.fetcher(ctx, t.source, t.name, t.filters, t.schema)
+	rows, err := t.Fetcher(ctx, t.Source, t.TableName, t.filters, t.TableSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -98,5 +97,5 @@ func (iter *tableIter) Close() error {
 
 // String implements the sql.Table interface.
 func (t *ProxyTable) String() string {
-	return t.name
+	return t.TableName
 }

@@ -28,9 +28,9 @@ func NewRedisTable(name string, schema sql.Schema, source string) (sql.Table, er
 		return nil, errors.Wrapf(err, "Ping redis %s failed", source)
 	}
 	return &ProxyTable{
-		source:  source,
-		name:    name,
-		schema:  schema,
-		fetcher: proxy.RedisFetch,
+		Source:      source,
+		TableName:   name,
+		TableSchema: schema,
+		Fetcher:     proxy.RedisFetch,
 	}, nil
 }

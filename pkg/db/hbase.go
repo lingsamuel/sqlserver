@@ -25,9 +25,9 @@ func NewHBaseTable(name string, schema sql.Schema, source string) (sql.Table, er
 	}
 
 	return &ProxyTable{
-		source:  source,
-		name:    name,
-		schema:  schema,
-		fetcher: proxy.HBaseFetch,
+		Source:      source,
+		TableName:   name,
+		TableSchema: schema,
+		Fetcher:     proxy.HBaseFetch,
 	}, nil
 }

@@ -15,9 +15,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build & run the docker image
       run: |
-        make output
+        make push
         
-    - uses: actions/upload-artifact@v2
-      with:
-        name: sqlproxy.img
-        path: ./sqlproxy.img
+    # - uses: actions/upload-artifact@v2
+    #   with:
+    #     name: sqlproxy.img
+    #     path: ./sqlproxy.img
