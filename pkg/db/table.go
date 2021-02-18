@@ -5,9 +5,10 @@ import (
 	"strconv"
 
 	"github.com/dolthub/go-mysql-server/sql"
-	"github.com/lingsamuel/sqlserver/pkg/proxy"
 	"github.com/sirupsen/logrus"
 )
+
+type FetchFunc = func(ctx *sql.Context, source, table string, filters []sql.Expression, schema sql.Schema) ([]sql.Row, error)
 
 // ProxyTable represents an proxy database table.
 type ProxyTable struct {
@@ -17,12 +18,12 @@ type ProxyTable struct {
 
 	filters []sql.Expression
 
-	fetcher proxy.Fetch
+	fetcher FetchFunc
 }
 
 var _ sql.Table = (*ProxyTable)(nil)
 
-func NewProxyTable(source, name string, schema sql.Schema, f proxy.Fetch) *ProxyTable {
+func NewProxyTable(source, name string, schema sql.Schema, f FetchFunc) *ProxyTable {
 	return &ProxyTable{
 		source:  source,
 		name:    name,
