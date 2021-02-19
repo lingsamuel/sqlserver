@@ -6,24 +6,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	Source string
-)
-
 // SimpleDatabase wraps a table creator.
 type SimpleDatabase struct {
 	name         string
 	tables       map[string]sql.Table
 	tableCreator TableCreator
+
+	defaultSource string
 }
 
 type TableCreator = func(name string, schema sql.Schema, source string) (sql.Table, error)
 
-func NewSimpleDatabase(name string, c TableCreator) *SimpleDatabase {
+func NewSimpleDatabase(name string, c TableCreator, source string) *SimpleDatabase {
 	return &SimpleDatabase{
-		name:         name,
-		tables:       map[string]sql.Table{},
-		tableCreator: c,
+		name:          name,
+		tables:        map[string]sql.Table{},
+		tableCreator:  c,
+		defaultSource: source,
 	}
 }
 
@@ -65,10 +64,9 @@ func (d *SimpleDatabase) CreateTable(ctx *sql.Context, name string, schema sql.S
 	logrus.Infof("Create table %s, query: %v", name, ctx.Query())
 	t, v := ctx.Get("source")
 	if v == nil {
-		if Source == "" {
+		v = d.defaultSource
+		if v == "" {
 			return errors.Errorf("invalid nil source")
-		} else {
-			v = Source
 		}
 	} else if t != sql.LongText {
 		return errors.Errorf("invalid source type %v", t)

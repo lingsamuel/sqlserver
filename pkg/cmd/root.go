@@ -9,7 +9,6 @@ import (
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
 	"github.com/dolthub/go-mysql-server/sql"
-	database "github.com/lingsamuel/sqlserver/pkg/db"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +41,6 @@ func Execute(f func() *sqle.Engine) error {
 
 func init() {
 	RootCmd.PersistentFlags().IntVarP(&logLevel, "loglevel", "l", int(logrus.InfoLevel), "Logrus log level. From 0 to 6: panic, fatal, error, warning, info, debug, trace.")
-	RootCmd.PersistentFlags().StringVar(&database.Source, "source", "", "Backend endpoint.")
 
 	RootCmd.PersistentFlags().StringVarP(&address, "address", "a", "0.0.0.0", "SQL server address.")
 	RootCmd.PersistentFlags().IntVarP(&port, "port", "P", 3306, "SQL server port.")
