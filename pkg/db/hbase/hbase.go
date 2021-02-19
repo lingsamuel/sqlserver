@@ -5,9 +5,13 @@ import (
 	"github.com/lingsamuel/sqlserver/pkg/db"
 )
 
+var (
+	Source string
+)
+
 // NewHBaseDatabase creates a new database with the given name.
 func NewHBaseDatabase(name string) *db.SimpleDatabase {
-	return db.NewSimpleDatabase(name, NewHBaseTable)
+	return db.NewSimpleDatabase(name, NewHBaseTable, Source)
 }
 
 var _ db.TableCreator = NewHBaseTable

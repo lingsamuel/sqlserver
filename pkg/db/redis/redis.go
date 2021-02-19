@@ -7,9 +7,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	Source string
+)
+
 // NewRedisDatabase creates a new database with the given name.
 func NewRedisDatabase(name string) *db.SimpleDatabase {
-	return db.NewSimpleDatabase(name, NewRedisTable)
+	return db.NewSimpleDatabase(name, NewRedisTable, Source)
 }
 
 var _ db.TableCreator = NewRedisTable
