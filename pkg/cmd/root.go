@@ -58,7 +58,7 @@ func run() {
 	}
 
 	if user != "" && password != "" {
-		config.Auth = auth.NewNativeSingle("user", "pass", auth.AllPermissions)
+		config.Auth = auth.NewNativeSingle(user, password, auth.AllPermissions)
 	} else {
 		config.Auth = new(auth.None)
 	}
